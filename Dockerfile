@@ -2,7 +2,6 @@ FROM ubuntu:14.04
 
 MAINTAINER      groall <groall@nodasoft.com>
 
-
 # locale
 RUN     locale-gen ru_RU.UTF-8 && locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
@@ -24,7 +23,7 @@ RUN     apt-get update && \
 RUN     BUILD_PACKAGES="php5-fpm php5-mysql php-apc php5-curl php5-gd php5-intl php5-mcrypt php5-memcached \
         php5-xmlrpc php-pear php5-dev php-http php5-cli php5-imap php5-xdebug php5-imagick \
         nginx \
-        gcc make g++ build-essential tcl wget git tzdata curl zip nano \
+        gcc make g++ build-essential tcl wget git tzdata curl zip nano python-setuptools \
         libpcre3-dev libevent-dev libmagic-dev librabbitmq1 librabbitmq-dev libcurl3 libcurl4-openssl-dev libssh2-php libc6-dev" && \
         apt-get install -y $BUILD_PACKAGES && \
         apt-get remove --purge -y software-properties-common && \
@@ -45,18 +44,23 @@ RUN     yes | pecl install redis amqp  apcu-4.0.7 xhprof-0.9.4 raphf propro  pec
 # tweak nginx config
 RUN     sed -i -e"s/worker_processes  1/worker_processes 5/" /etc/nginx/nginx.conf && \
         sed -i -e"s/keepalive_timeout\s*65/keepalive_timeout 2/" /etc/nginx/nginx.conf && \
-        sed -i -e"s/keepalive_timeout 2/keepalive_timeout 2;\n\tclient_max_body_size 100m/" /etc/nginx/nginx.conf && \
+        sed -i -e"s/keepalive_timeout 2/keepalive_timeout 2;\n\tclient_max_body_size 100m/" /etc/nginx/nginx.conf
+RUN     echo "daemon off;" >> /etc/nginx/nginx.conf
+
+# nginx site conf
+RUN     rm -Rf /etc/nginx/conf.d/* && \
+        rm -Rf /etc/nginx/sites-available/default
 
 # tweak php-fpm config
-RUN     sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /etc/php5/fpm/php.ini && \
-        sed -i -e "s/post_max_size\s*=\s*8M/post_max_size = 100M/g" /etc/php5/fpm/php.ini && \
-        sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php5/fpm/pool.d/www.conf && \
-        sed -i -e "s/pm.max_children = 5/pm.max_children = 10/g" /etc/php5/fpm/pool.d/www.conf && \
-        sed -i -e "s/pm.start_servers = 2/pm.start_servers = 3/g" /etc/php5/fpm/pool.d/www.conf && \
-        sed -i -e "s/pm.min_spare_servers = 1/pm.min_spare_servers = 2/g" /etc/php5/fpm/pool.d/www.conf && \
-        sed -i -e "s/pm.max_spare_servers = 3/pm.max_spare_servers = 4/g" /etc/php5/fpm/pool.d/www.conf && \
-        sed -i -e "s/pm.max_requests = 500/pm.max_requests = 1000/g" /etc/php5/fpm/pool.d/www.conf && \
-        sed -i -e "s/error_reporting = E_ALL & ~E_NOTICE/error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_STRICT/g" /etc/php5/fpm/pool.d/www.conf && \
+RUN     sed -i -e"s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /etc/php5/fpm/php.ini && \
+        sed -i -e"s/post_max_size\s*=\s*8M/post_max_size = 100M/g" /etc/php5/fpm/php.ini && \
+        sed -i -e"s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php5/fpm/pool.d/www.conf && \
+        sed -i -e"s/pm.max_children = 5/pm.max_children = 10/g" /etc/php5/fpm/pool.d/www.conf && \
+        sed -i -e"s/pm.start_servers = 2/pm.start_servers = 3/g" /etc/php5/fpm/pool.d/www.conf && \
+        sed -i -e"s/pm.min_spare_servers = 1/pm.min_spare_servers = 2/g" /etc/php5/fpm/pool.d/www.conf && \
+        sed -i -e"s/pm.max_spare_servers = 3/pm.max_spare_servers = 4/g" /etc/php5/fpm/pool.d/www.conf && \
+        sed -i -e"s/pm.max_requests = 500/pm.max_requests = 1000/g" /etc/php5/fpm/pool.d/www.conf && \
+        sed -i -e"s/error_reporting = E_ALL & ~E_NOTICE/error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_STRICT/g" /etc/php5/fpm/pool.d/www.conf && \
         echo "xdebug.remote_port=9002" >> /etc/php5/fpm/conf.d/25-modules.ini && \
         echo "xdebug.remote_enable=1 >> /etc/php5/fpm/conf.d/25-modules.ini && \
         echo "xdebug.remote_handler=dbgp >> /etc/php5/fpm/conf.d/25-modules.ini && \
@@ -74,10 +78,6 @@ RUN     sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" 
 # fix ownership of sock file for php-fpm
 RUN     sed -i -e "s/;listen.mode = 0660/listen.mode = 0750/g" /etc/php5/fpm/pool.d/www.conf && \
         find /etc/php5/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
-
-# nginx site conf
-RUN     rm -Rf /etc/nginx/conf.d/* && \
-        rm -Rf /etc/nginx/sites-available/default && \
 
 # Supervisor Config
 RUN /usr/bin/easy_install supervisor

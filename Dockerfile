@@ -62,21 +62,21 @@ RUN     sed -i -e"s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /
         sed -i -e"s/pm.max_requests = 500/pm.max_requests = 1000/g" /etc/php5/fpm/pool.d/www.conf && \
         sed -i -e"s/error_reporting = E_ALL & ~E_NOTICE/error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_STRICT/g" /etc/php5/fpm/pool.d/www.conf && \
         echo "xdebug.remote_port=9002" >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "xdebug.remote_enable=1 >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "xdebug.remote_handler=dbgp >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "xdebug.remote_host=172.17.42.1 >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "xdebug.idekey=PHPSTORM >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "xdebug.max_nesting_level=1000 >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "xdebug.remote_autostart=1 >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "extension=redis.so >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "extension=amqp.so >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "extension=xhprof.so >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "extension=raphf.so >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "extension=propro.so >> /etc/php5/fpm/conf.d/25-modules.ini && \
-        echo "extension=http.so >> /etc/php5/fpm/conf.d/25-modules.ini
+        echo "xdebug.remote_enable=1" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "xdebug.remote_handler=dbgp" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "xdebug.remote_host=172.17.42.1" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "xdebug.idekey=PHPSTORM" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "xdebug.max_nesting_level=1000" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "xdebug.remote_autostart=1" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=redis.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=amqp.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=xhprof.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=raphf.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=propro.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=http.so" >> /etc/php5/fpm/conf.d/25-modules.ini
 
 # fix ownership of sock file for php-fpm
-RUN     sed -i -e "s/;listen.mode = 0660/listen.mode = 0750/g" /etc/php5/fpm/pool.d/www.conf && \
+RUN     rm -Rf /etc/php5/fpm/pool.d/* && \
         find /etc/php5/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
 # Supervisor Config

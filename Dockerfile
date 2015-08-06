@@ -76,7 +76,7 @@ RUN     sed -i -e"s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /
         echo "extension=http.so" >> /etc/php5/fpm/conf.d/25-modules.ini
 
 # fix ownership of sock file for php-fpm
-RUN     rm -Rf /etc/php5/fpm/pool.d/* && \
+RUN     sed -i -e "s/;listen.mode = 0660/listen.mode = 0750/g" /etc/php5/fpm/pool.d/www.conf && \
         find /etc/php5/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
 # Supervisor Config

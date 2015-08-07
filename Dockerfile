@@ -23,7 +23,7 @@ RUN     apt-get update && \
 RUN     BUILD_PACKAGES="php5-fpm php5-mysql php-apc php5-curl php5-gd php5-intl php5-mcrypt php5-memcached \
         php5-xmlrpc php-pear php5-dev php-http php5-cli php5-imap php5-xdebug php5-imagick \
         nginx \
-        gcc make g++ build-essential tcl wget git tzdata curl zip nano python-setuptools \
+        gcc make g++ build-essential tcl wget git tzdata curl zip nano ca-certificates inotify-tools pwgen supervisor \
         libpcre3-dev libevent-dev libmagic-dev librabbitmq1 librabbitmq-dev libcurl3 libcurl4-openssl-dev libssh2-php libc6-dev" && \
         apt-get install -y $BUILD_PACKAGES && \
         apt-get remove --purge -y software-properties-common && \
@@ -79,6 +79,4 @@ RUN     sed -i -e"s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /
 RUN     sed -i -e "s/;listen.mode = 0660/listen.mode = 0750/g" /etc/php5/fpm/pool.d/www.conf && \
         find /etc/php5/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
-# Supervisor Config
-RUN /usr/bin/easy_install supervisor
-RUN /usr/bin/easy_install supervisor-stdout
+CMD     ["supervisord -n"]

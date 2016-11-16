@@ -46,7 +46,7 @@ RUN     apt-get update && \
 #RUN     php5enmod mcrypt
 
 # Install pecl modules
-RUN     yes | pecl install redis amqp  apcu-4.0.7 xhprof-0.9.4 raphf propro  pecl_http-1.7.6
+RUN     yes | pecl install redis amqp  apcu-4.0.7 xhprof-0.9.4 raphf propro  pecl_http-1.7.6 protobuf-3.1.0a1 grpc
 
 # Tweak nginx config
 RUN     sed -i -e"s/worker_processes  1/worker_processes 5/" /etc/nginx/nginx.conf && \
@@ -77,6 +77,8 @@ RUN     sed -i -e"s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" /
         echo "extension=raphf.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
         echo "extension=propro.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
         echo "extension=http.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=protobuf.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
+        echo "extension=grpc.so" >> /etc/php5/fpm/conf.d/25-modules.ini && \
         rm -Rf /etc/php5/fpm/pool.d/* && \
         find /etc/php5/cli/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
